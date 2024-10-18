@@ -1229,21 +1229,27 @@ func (a *Attribute) Element() *etree.Element {
 //
 // See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.3.1.1
 type AttributeValue struct {
-	Type   string `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr"`
-	Value  string `xml:",chardata"`
-	NameID *NameID
+	Type     string `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr"`
+	Value    string `xml:",chardata"`
+	NameID   *NameID
+	XmlValue *etree.Element
 }
 
 // Element returns an etree.Element representing the object in XML form.
 func (a *AttributeValue) Element() *etree.Element {
 	el := etree.NewElement("saml:AttributeValue")
-	el.CreateAttr("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
-	el.CreateAttr("xmlns:xs", "http://www.w3.org/2001/XMLSchema")
-	el.CreateAttr("xsi:type", a.Type)
+	//if a.Type != "" {
+	//	el.CreateAttr("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+	//	el.CreateAttr("xmlns:xs", "http://www.w3.org/2001/XMLSchema")
+	//	el.CreateAttr("xsi:type", a.Type)
+	//}
 	if a.NameID != nil {
 		el.AddChild(a.NameID.Element())
+	} else if a.XmlValue != nil {
+		el.AddChild(a.XmlValue)
+	} else {
+		el.SetText(a.Value)
 	}
-	el.SetText(a.Value)
 	return el
 }
 
